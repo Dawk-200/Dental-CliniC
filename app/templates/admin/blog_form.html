@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+{% block page_title %}{{ 'Edit Post' if post else 'New Post' }}{% endblock %}
+{% block content %}
+<div class="admin-card" style="max-width:780px;">
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group"><label>Title *</label><input type="text" name="title" value="{{ post.title if post else '' }}" required></div>
+    <div class="grid grid-2">
+      <div class="form-group"><label>Category</label><input type="text" name="category" value="{{ post.category if post else '' }}"></div>
+      <div class="form-group"><label>Tags (comma separated)</label><input type="text" name="tags" value="{{ post.tags if post else '' }}"></div>
+      <div class="form-group"><label>Author</label><input type="text" name="author" value="{{ post.author if post else 'Clinic Team' }}"></div>
+    </div>
+    <div class="form-group"><label>Excerpt</label><textarea name="excerpt" rows="2">{{ post.excerpt if post else '' }}</textarea></div>
+    <div class="form-group"><label>Content *</label><textarea name="content" rows="12" required>{{ post.content if post else '' }}</textarea></div>
+
+    <h3>SEO</h3>
+    <div class="form-group"><label>SEO Title</label><input type="text" name="seo_title" value="{{ post.seo_title if post else '' }}"></div>
+    <div class="form-group"><label>SEO Description</label><input type="text" name="seo_description" value="{{ post.seo_description if post else '' }}"></div>
+
+    <div class="checkbox-row form-group">
+      <input type="checkbox" name="is_published" id="is_published" {{ 'checked' if post and post.is_published }}>
+      <label for="is_published" style="margin:0;">Published</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Post</button>
+    <a href="{{ url_for('admin.blog') }}" class="btn btn-outline">Cancel</a>
+  </form>
+</div>
+{% endblock %}

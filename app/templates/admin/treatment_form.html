@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% block page_title %}{{ 'Edit Treatment' if t else 'Add Treatment' }}{% endblock %}
+{% block content %}
+{% set faqs = [] %}
+{% if t and t.faq_json %}{% set faqs = t.faq_json|from_json %}{% endif %}
+
+<div class="admin-card" style="max-width:780px;">
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid grid-2">
+      <div class="form-group"><label>Name *</label><input type="text" name="name" value="{{ t.name if t else '' }}" required></div>
+      <div class="form-group"><label>Duration (minutes)</label><input type="number" name="duration_minutes" value="{{ t.duration_minutes if t else 30 }}"></div>
+      <div class="form-group"><label>Price (optional, leave blank to hide)</label><input type="text" name="price_display" value="{{ t.price_display if t else '' }}"></div>
+      <div class="form-group"><label>Display Order</label><input type="number" name="display_order" value="{{ t.display_order if t else 0 }}"></div>
+    </div>
+    <div class="form-group"><label>Short Description (shown on cards)</label><textarea name="short_description" rows="2">{{ t.short_description if t else '' }}</textarea></div>
+    <div class="form-group"><label>Introduction</label><textarea name="intro" rows="2">{{ t.intro if t else '' }}</textarea></div>
+    <div class="form-group"><label>What is it?</label><textarea name="what_is_it" rows="3">{{ t.what_is_it if t else '' }}</textarea></div>
+    <div class="form-group"><label>When is it needed?</label><textarea name="when_needed" rows="3">{{ t.when_needed if t else '' }}</textarea></div>
+    <div class="form-group"><label>Symptoms / Indications</label><textarea name="symptoms" rows="3">{{ t.symptoms if t else '' }}</textarea></div>
+    <div class="form-group"><label>What happens during treatment?</label><textarea name="procedure" rows="3">{{ t.procedure if t else '' }}</textarea></div>
+    <div class="form-group"><label>Recovery Information</label><textarea name="recovery" rows="3">{{ t.recovery if t else '' }}</textarea></div>
+
+    <h3>FAQs</h3>
+    {% for i in range(1, 5) %}
+    <div class="grid grid-2 form-group">
+      <input type="text" name="faq_q_{{ i }}" placeholder="Question {{ i }}" value="{{ faqs[i-1].q if faqs|length >= i else '' }}">
+      <input type="text" name="faq_a_{{ i }}" placeholder="Answer {{ i }}" value="{{ faqs[i-1].a if faqs|length >= i else '' }}">
+    </div>
+    {% endfor %}
+
+    <h3>SEO</h3>
+    <div class="form-group"><label>SEO Title</label><input type="text" name="seo_title" value="{{ t.seo_title if t else '' }}"></div>
+    <div class="form-group"><label>SEO Description</label><input type="text" name="seo_description" value="{{ t.seo_description if t else '' }}"></div>
+
+    <div class="checkbox-row form-group">
+      <input type="checkbox" name="is_active" id="is_active" {{ 'checked' if (t is none) or t.is_active }}>
+      <label for="is_active" style="margin:0;">Active (visible on the public website)</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Treatment</button>
+    <a href="{{ url_for('admin.treatments') }}" class="btn btn-outline">Cancel</a>
+  </form>
+</div>
+{% endblock %}

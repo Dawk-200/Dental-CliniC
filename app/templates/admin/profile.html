@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Admin Profile{% endblock %}
+{% block content %}
+<div class="admin-card" style="max-width:500px;">
+  <h3>Account</h3>
+  <p><strong>{{ current_user.name }}</strong><br><span class="small-muted">{{ current_user.email }}</span></p>
+
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group"><label>Display Name</label><input type="text" name="name" value="{{ current_user.name }}"></div>
+    <h3 class="mt-2">Change Password</h3>
+    <div class="form-group"><label>Current Password</label><input type="password" name="current_password"></div>
+    <div class="form-group"><label>New Password (min. 8 characters)</label><input type="password" name="new_password" minlength="8"></div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

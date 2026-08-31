@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Appointment Confirmed | {{ clinic.clinic_name }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container text-center" style="max-width:560px;">
+    <div class="feature-icon" style="width:64px; height:64px; margin:0 auto 1rem; background:#e5f6ee; color:var(--c-success);">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h1>Appointment Requested!</h1>
+    <p>Thank you, {{ appointment.patient.full_name }}. Your appointment has been received and is currently
+      <span class="badge badge-{{ appointment.status }}">{{ appointment.status.replace('_',' ').title() }}</span>.
+    </p>
+
+    <div class="card text-center" style="margin:1.5rem 0;">
+      <dl class="summary-list" style="justify-content:center; text-align:left;">
+        <dt>Reference Code</dt><dd><strong>{{ appointment.public_code }}</strong></dd>
+        <dt>Treatment</dt><dd>{{ appointment.treatment.name }}</dd>
+        <dt>Date</dt><dd>{{ appointment.date.strftime('%A, %B %d, %Y') }}</dd>
+        <dt>Time</dt><dd>{{ format_time_12h(appointment.time) }}</dd>
+        <dt>Clinic</dt><dd>{{ clinic.clinic_name }}</dd>
+      </dl>
+    </div>
+
+    <p class="small-muted">Please save your reference code — you'll need it along with your phone number to manage this appointment later.</p>
+
+    <div class="hero-cta" style="justify-content:center;">
+      <a href="{{ whatsapp_link(clinic.whatsapp, 'Hello Dr. ' + clinic.doctor_name.replace('Dr. ','') + ', I have an appointment request for ' + appointment.date.strftime('%Y-%m-%d') + ' at ' + appointment.time + '. My appointment ID is ' + appointment.public_code + '.') }}"
+         class="btn btn-whatsapp" target="_blank" rel="noopener">Message the Doctor</a>
+      <a href="{{ url_for('main.home') }}" class="btn btn-outline">Back to Home</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

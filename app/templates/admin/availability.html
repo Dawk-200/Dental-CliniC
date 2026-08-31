@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Availability{% endblock %}
+{% block content %}
+
+<div class="admin-card">
+  <h3>Weekly Working Hours</h3>
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="weekday-row" style="font-weight:700; font-size:0.8rem; color:var(--c-ink-soft); text-transform:uppercase;">
+      <span>Day</span><span>Open?</span><span>Start</span><span>End</span><span>Break Start</span><span>Break End</span>
+    </div>
+    {% for h in hours %}
+    <div class="weekday-row">
+      <strong>{{ weekday_names[h.weekday] }}</strong>
+      <label class="checkbox-row inline">
+        <input type="checkbox" name="day_{{ h.weekday }}_open" {{ 'checked' if h.is_open }}>
+        <span class="small-muted">Open</span>
+      </label>
+      <input type="time" name="day_{{ h.weekday }}_start" value="{{ h.open_time }}">
+      <input type="time" name="day_{{ h.weekday }}_end" value="{{ h.close_time }}">
+      <input type="time" name="day_{{ h.weekday }}_break_start" value="{{ h.break_start or '' }}">
+      <input type="time" name="day_{{ h.weekday }}_break_end" value="{{ h.break_end or '' }}">
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary mt-2">Save Working Hours</button>
+  </form>
+</div>
+
+<div class="admin-card">
+  <h3>Block a Date or Slot</h3>
+  <form method="POST" action="{{ url_for('admin.block_slot') }}" style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:end;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group" style="margin:0;"><label>Date</label><input type="date" name="date" required></div>
+    <div class="form-group" style="margin:0;"><label>Time (leave blank to block whole day)</label><input type="time" name="time"></div>
+    <div class="form-group" style="margin:0; flex:1; min-width:180px;"><label>Reason</label><input type="text" name="reason" placeholder="e.g. Public holiday"></div>
+    <button type="submit" class="btn btn-primary btn-sm">Block</button>
+  </form>
+</div>
+
+<div class="admin-card">
+  <h3>Blocked Dates / Slots</h3>
+  <div class="table-scroll">
+  <table class="admin-table">
+    <thead><tr><th>Date</th><th>Time</th><th>Reason</th><th></th></tr></thead>
+    <tbody>
+    {% for b in blocked %}
+      <tr>
+        <td>{{ b.date.strftime('%b %d, %Y') }}</td>
+        <td>{{ format_time_12h(b.time) if b.time else 'Whole day' }}</td>
+        <td>{{ b.reason or '—' }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.unblock_slot', block_id=b.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm">Remove</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4" class="empty-state">No blocked dates.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

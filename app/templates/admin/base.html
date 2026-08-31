@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}Admin | {{ clinic.clinic_name }}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5c-2 0-3.5 1.5-5 1.5S4 5 3 5c-1 3 0 12 3 15 1.5 1.5 2-4 3-4s1.5 5.5 3 4c3-3 4-12 3-15-1 0-2.5 1.5-3 1.5S14 5 12 5z"/></svg>
+      </span>
+      <span>{{ clinic.clinic_name }}</span>
+    </div>
+    <nav class="admin-nav" aria-label="Admin navigation">
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">📊 Dashboard</a>
+      <a href="{{ url_for('admin.appointments') }}" class="{{ 'active' if 'appointment' in request.endpoint }}">📅 Appointments</a>
+      <a href="{{ url_for('admin.patients') }}" class="{{ 'active' if 'patient' in request.endpoint }}">🧑‍🤝‍🧑 Patients</a>
+      <a href="{{ url_for('admin.availability') }}" class="{{ 'active' if request.endpoint == 'admin.availability' }}">🕐 Availability</a>
+      <a href="{{ url_for('admin.treatments') }}" class="{{ 'active' if 'treatment' in request.endpoint }}">🦷 Treatments</a>
+      <a href="{{ url_for('admin.notifications') }}" class="{{ 'active' if request.endpoint == 'admin.notifications' }}">🔔 Notifications
+        {% if unread_notifications %}<span class="badge badge-cancelled" style="margin-left:auto;">{{ unread_notifications }}</span>{% endif %}
+      </a>
+      <a href="{{ url_for('admin.contact_messages') }}" class="{{ 'active' if request.endpoint == 'admin.contact_messages' }}">✉️ Messages</a>
+      <a href="{{ url_for('admin.blog') }}" class="{{ 'active' if 'blog' in request.endpoint }}">📝 Blog</a>
+      <a href="{{ url_for('admin.reviews') }}" class="{{ 'active' if 'review' in request.endpoint }}">⭐ Reviews</a>
+      <a href="{{ url_for('admin.statistics') }}" class="{{ 'active' if request.endpoint == 'admin.statistics' }}">📈 Statistics</a>
+      <div class="nav-section-label">Settings</div>
+      <a href="{{ url_for('admin.settings') }}" class="{{ 'active' if request.endpoint == 'admin.settings' }}">⚙️ Clinic Settings</a>
+      <a href="{{ url_for('admin.seo_settings') }}" class="{{ 'active' if request.endpoint == 'admin.seo_settings' }}">🔍 SEO Settings</a>
+      <a href="{{ url_for('admin.profile') }}" class="{{ 'active' if request.endpoint == 'admin.profile' }}">👤 Admin Profile</a>
+      <a href="{{ url_for('admin.audit_log') }}" class="{{ 'active' if request.endpoint == 'admin.audit_log' }}">🗒️ Audit Log</a>
+      <a href="{{ url_for('admin.backup') }}" class="{{ 'active' if request.endpoint == 'admin.backup' }}">💾 Backup</a>
+      <a href="{{ url_for('admin_auth.logout') }}">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div style="display:flex; align-items:center; gap:0.8rem;">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+      </div>
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <a href="{{ url_for('admin.notifications') }}" class="notif-bell" aria-label="Notifications">
+          🔔{% if unread_notifications %}<span class="notif-count">{{ unread_notifications }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('main.home') }}" class="btn btn-outline btn-sm" target="_blank">View Site</a>
+      </div>
+    </div>
+
+    <div class="admin-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'error' if category == 'error' else category }}" role="alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

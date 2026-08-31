@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Contact Messages{% endblock %}
+{% block content %}
+<div class="admin-table-wrap">
+  {% for m in messages %}
+  <div style="padding:1rem 1.2rem; border-bottom:1px solid var(--c-gray-100); background:{{ 'var(--c-sky-50)' if not m.is_read else '#fff' }};">
+    <div style="display:flex; justify-content:space-between;">
+      <strong>{{ m.name }}</strong>
+      <span class="small-muted">{{ m.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+    </div>
+    <p class="small-muted">{{ m.email or '' }} {{ m.phone or '' }}</p>
+    <p>{{ m.message }}</p>
+    {% if not m.is_read %}
+    <form method="POST" action="{{ url_for('admin.mark_message_read', msg_id=m.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline btn-sm">Mark Read</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="empty-state">No messages yet.</div>
+  {% endfor %}
+</div>
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination">
+  {% if pagination.has_prev %}<a href="?page={{ pagination.prev_num }}">&larr;</a>{% endif %}
+  <span class="current">{{ pagination.page }} / {{ pagination.pages }}</span>
+  {% if pagination.has_next %}<a href="?page={{ pagination.next_num }}">&rarr;</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

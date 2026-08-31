@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Reviews{% endblock %}
+{% block content %}
+<div class="mb-2"><a href="{{ url_for('admin.new_review') }}" class="btn btn-primary">+ Add Review</a></div>
+<div class="admin-table-wrap">
+  <div class="table-scroll">
+  <table class="admin-table">
+    <thead><tr><th>Patient</th><th>Rating</th><th>Review</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for r in reviews %}
+      <tr>
+        <td>{{ r.patient_name }}</td>
+        <td>{{ '★' * r.rating }}</td>
+        <td>{{ r.review_text[:80] }}{{ '…' if r.review_text|length > 80 }}</td>
+        <td>{% if r.is_published %}<span class="badge badge-completed">Published</span>{% else %}<span class="badge badge-pending">Hidden</span>{% endif %}</td>
+        <td style="display:flex; gap:0.5rem;">
+          <a href="{{ url_for('admin.edit_review', review_id=r.id) }}" class="btn btn-outline btn-sm">Edit</a>
+          <form method="POST" action="{{ url_for('admin.delete_review', review_id=r.id) }}" data-confirm="Delete this review?">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5" class="empty-state">No reviews yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

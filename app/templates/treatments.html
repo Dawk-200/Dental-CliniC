@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Dental Treatments | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Explore our full range of dental treatments including cleanings, root canals, whitening, implants, braces and emergency care at {{ clinic.clinic_name }}.{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>Treatments</div>
+    <h1>Our Dental Treatments</h1>
+    <p style="max-width:600px; margin:0 auto;">Modern, gentle care for every stage of your dental health journey.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="grid grid-4">
+      {% for t in treatments %}
+      <div class="card treatment-card">
+        <div class="treatment-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5c-2 0-3.5 1.5-5 1.5S4 5 3 5c-1 3 0 12 3 15 1.5 1.5 2-4 3-4s1.5 5.5 3 4c3-3 4-12 3-15-1 0-2.5 1.5-3 1.5S14 5 12 5z"/></svg>
+        </div>
+        <h3>{{ t.name }}</h3>
+        <p>{{ t.short_description }}</p>
+        {% if t.price_display %}<span class="tag-pill">{{ t.price_display }}</span>{% endif %}
+        <div class="treatment-actions">
+          <a href="{{ url_for('main.treatment_detail', slug=t.slug) }}" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="{{ url_for('booking.book_appointment', treatment=t.slug) }}" class="btn btn-primary btn-sm">Book</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="empty-state">Treatments will appear here once added by the clinic.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

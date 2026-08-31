@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Frequently Asked Questions | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Answers to common questions about booking, rescheduling, dental emergencies, and treatments at {{ clinic.clinic_name }}.{% endblock %}
+
+{% set faqs = [
+  ("How do I book an appointment?", "Click \"Book Appointment\" anywhere on the site, choose your treatment, pick an available date and time, and fill in your details. You'll get a confirmation with a reference code."),
+  ("How long does a dental cleaning take?", "A routine cleaning typically takes 30 to 45 minutes, depending on your oral health history."),
+  ("What should I do during a dental emergency?", "Call or WhatsApp us right away. If it's outside clinic hours and you're in severe pain or have significant swelling or bleeding, please seek emergency medical care."),
+  ("Can I reschedule my appointment?", "Yes. Use the \"My Appointment\" page with your reference code and phone number to reschedule to another available slot."),
+  ("How do I contact the dentist?", "You can call, email, or message us on WhatsApp directly from the Contact page."),
+  ("What treatments are available?", "We offer general dentistry, cleanings, whitening, root canals, fillings, extractions, implants, braces, crowns, pediatric and cosmetic dentistry, and emergency care. See the Treatments page for details.")
+] %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for q, a in faqs %}
+    { "@type": "Question", "name": "{{ q|replace('"','\\"') }}", "acceptedAnswer": { "@type": "Answer", "text": "{{ a|replace('"','\\"') }}" } }{{ "," if not loop.last }}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>FAQ</div>
+    <h1>Frequently Asked Questions</h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:760px;">
+    <div data-accordion-group>
+      {% for q, a in faqs %}
+      <div class="accordion-item">
+        <button class="accordion-trigger" aria-expanded="false"><span>{{ q }}</span><span class="plus">+</span></button>
+        <div class="accordion-panel"><div class="accordion-panel-inner"><p>{{ a }}</p></div></div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-2">
+      <p>Still have a question?</p>
+      <a href="{{ url_for('main.contact') }}" class="btn btn-outline">Contact Us</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

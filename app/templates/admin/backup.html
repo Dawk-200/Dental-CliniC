@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Database Backup{% endblock %}
+{% block content %}
+<div class="admin-card" style="max-width:600px;">
+  <h3>Create Backup</h3>
+  <p class="small-muted">Creates a timestamped copy of the SQLite database file in a private, non-public folder.</p>
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-primary">Create Backup Now</button>
+  </form>
+</div>
+<div class="admin-card">
+  <h3>Existing Backups</h3>
+  <div class="table-scroll">
+  <table class="admin-table">
+    <thead><tr><th>File</th><th></th></tr></thead>
+    <tbody>
+    {% for f in files %}
+      <tr><td>{{ f }}</td><td><a href="{{ url_for('admin.download_backup', filename=f) }}" class="btn btn-outline btn-sm">Download</a></td></tr>
+    {% else %}
+      <tr><td colspan="2" class="empty-state">No backups yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

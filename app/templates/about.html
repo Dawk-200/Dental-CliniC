@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}About {{ clinic.doctor_name }} | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Meet {{ clinic.doctor_name }}, {{ clinic.doctor_designation }} at {{ clinic.clinic_name }}. {{ clinic.doctor_qualifications }}.{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>About Doctor</div>
+    <h1>About {{ clinic.doctor_name }}</h1>
+    <p style="max-width:600px; margin:0 auto;">{{ clinic.doctor_designation }}</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="doctor-card">
+      <div class="doctor-photo" aria-hidden="true">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div>
+        <h2 style="margin-top:0;">{{ clinic.doctor_name }}</h2>
+        <p style="color:var(--c-blue-600); font-weight:600;">{{ clinic.doctor_designation }}</p>
+        <p>{{ clinic.doctor_bio }}</p>
+
+        <div class="doctor-meta-list">
+          <div><span class="label">Qualifications</span>{{ clinic.doctor_qualifications }}</div>
+          <div><span class="label">Years of Experience</span>{{ clinic.doctor_experience_years }}+ years</div>
+          <div><span class="label">Specializations</span>{{ clinic.doctor_specializations }}</div>
+          <div><span class="label">Languages Spoken</span>{{ clinic.doctor_languages }}</div>
+        </div>
+
+        <h3>Treatment Philosophy</h3>
+        <p>
+          Every patient deserves to feel heard, informed, and comfortable before any treatment begins.
+          {{ clinic.doctor_name }} takes time to explain findings and options in plain language, so you can
+          make confident decisions about your care — with no pressure and no surprises.
+        </p>
+
+        <h3>Areas of Expertise</h3>
+        <ul style="list-style:disc; padding-left:1.2rem;">
+          <li style="margin-bottom:0.4rem; color:var(--c-ink-soft);">Preventive &amp; general dentistry</li>
+          <li style="margin-bottom:0.4rem; color:var(--c-ink-soft);">Root canal therapy</li>
+          <li style="margin-bottom:0.4rem; color:var(--c-ink-soft);">Cosmetic dentistry &amp; whitening</li>
+          <li style="margin-bottom:0.4rem; color:var(--c-ink-soft);">Dental implants &amp; restorations</li>
+        </ul>
+
+        <a href="{{ url_for('booking.book_appointment') }}" class="btn btn-primary">Book an Appointment</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

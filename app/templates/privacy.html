@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Privacy Policy for {{ clinic.clinic_name }} describing how we collect, use and protect patient information.{% endblock %}
+{% block content %}
+<div class="page-hero"><div class="container">
+  <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>Privacy Policy</div>
+  <h1>Privacy Policy</h1>
+</div></div>
+<section class="section"><div class="container" style="max-width:760px; color:var(--c-ink-soft);">
+  <p><em>Last updated: this page is a placeholder and should be reviewed by a qualified professional before publishing for a real clinic.</em></p>
+  <h2>Information We Collect</h2>
+  <p>When you book an appointment or contact us, we collect information such as your name, phone number, email address, age, and details about the treatment you are requesting, so that we can schedule and provide dental care.</p>
+  <h2>How We Use Your Information</h2>
+  <p>We use your information to manage appointments, communicate with you about your visit, and maintain accurate patient records. We do not sell your personal information.</p>
+  <h2>Data Security</h2>
+  <p>We take reasonable technical and organizational measures to protect your information, including secure password storage, restricted admin access, and encrypted connections where deployed with HTTPS.</p>
+  <h2>Your Choices</h2>
+  <p>You may contact us at any time to review, correct, or request deletion of your information, subject to our recordkeeping obligations.</p>
+  <h2>Contact</h2>
+  <p>Questions about this policy can be sent to {{ clinic.email }}.</p>
+</div></section>
+{% endblock %}

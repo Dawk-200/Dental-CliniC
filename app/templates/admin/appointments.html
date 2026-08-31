@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Appointments{% endblock %}
+{% block content %}
+
+<div class="filter-bar">
+  <form method="GET" style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; width:100%;">
+    <input type="text" name="q" placeholder="Search patient, phone or code" value="{{ search }}">
+    <select name="status">
+      <option value="">All Statuses</option>
+      {% for key, label in status_labels.items() %}
+        <option value="{{ key }}" {{ 'selected' if current_status == key }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select name="treatment_id">
+      <option value="">All Treatments</option>
+      {% for t in treatments %}
+        <option value="{{ t.id }}" {{ 'selected' if current_treatment == t.id }}>{{ t.name }}</option>
+      {% endfor %}
+    </select>
+    <input type="date" name="date" value="{{ current_date }}">
+    <button type="submit" class="btn btn-outline btn-sm">Filter</button>
+    <a href="{{ url_for('admin.appointments') }}" class="btn btn-sm">Clear</a>
+    <a href="{{ url_for('admin.new_appointment') }}" class="btn btn-primary btn-sm" style="margin-left:auto;">+ New Appointment</a>
+  </form>
+</div>
+
+<div class="admin-table-wrap">
+  <div class="table-scroll">
+  <table class="admin-table">
+    <thead><tr><th>Code</th><th>Patient</th><th>Treatment</th><th>Date</th><th>Time</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for a in appointments %}
+      <tr>
+        <td>{{ a.public_code }}</td>
+        <td>{{ a.patient.full_name }}<br><span class="small-muted">{{ a.patient.phone }}</span></td>
+        <td>{{ a.treatment.name }}</td>
+        <td>{{ a.date.strftime('%b %d, %Y') }}</td>
+        <td>{{ format_time_12h(a.time) }}</td>
+        <td><span class="badge badge-{{ a.status }}">{{ status_labels[a.status] }}</span></td>
+        <td><a href="{{ url_for('admin.appointment_detail', appointment_id=a.id) }}" class="btn btn-outline btn-sm">View</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="empty-state">No appointments match your filters.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination">
+  {% if pagination.has_prev %}<a href="?page={{ pagination.prev_num }}&q={{ search }}&status={{ current_status }}">&larr;</a>{% endif %}
+  <span class="current">{{ pagination.page }} / {{ pagination.pages }}</span>
+  {% if pagination.has_next %}<a href="?page={{ pagination.next_num }}&q={{ search }}&status={{ current_status }}">&rarr;</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

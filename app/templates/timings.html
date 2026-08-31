@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Clinic Timings | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Opening hours for {{ clinic.clinic_name }}. Find out when {{ clinic.doctor_name }} is available for appointments.{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>Clinic Timings</div>
+    <h1>Clinic Timings</h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:700px;">
+    <div class="admin-table-wrap" style="background:#fff; border-radius:var(--r-md); overflow:hidden; border:1px solid var(--c-gray-100); box-shadow:var(--shadow-sm);">
+      <table class="admin-table" style="width:100%;">
+        <thead><tr><th>Day</th><th>Hours</th><th>Break</th></tr></thead>
+        <tbody>
+        {% for h in hours %}
+          <tr>
+            <td><strong>{{ weekday_names[h.weekday] }}</strong></td>
+            <td>
+              {% if h.is_open %}
+                {{ format_time_12h(h.open_time) }} &ndash; {{ format_time_12h(h.close_time) }}
+              {% else %}
+                <span class="badge badge-cancelled">Closed</span>
+              {% endif %}
+            </td>
+            <td class="small-muted">
+              {% if h.is_open and h.break_start and h.break_end %}
+                {{ format_time_12h(h.break_start) }} &ndash; {{ format_time_12h(h.break_end) }}
+              {% else %}&mdash;{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="small-muted mt-2">Timings may occasionally change for holidays. We recommend booking online to see live availability.</p>
+    <div class="text-center mt-2">
+      <a href="{{ url_for('booking.book_appointment') }}" class="btn btn-primary">Book an Appointment</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

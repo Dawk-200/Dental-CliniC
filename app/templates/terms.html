@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Terms &amp; Conditions | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Terms and conditions for using the {{ clinic.clinic_name }} website and booking system.{% endblock %}
+{% block content %}
+<div class="page-hero"><div class="container">
+  <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>Terms &amp; Conditions</div>
+  <h1>Terms &amp; Conditions</h1>
+</div></div>
+<section class="section"><div class="container" style="max-width:760px; color:var(--c-ink-soft);">
+  <p><em>This page is a placeholder and should be reviewed by a qualified professional before publishing for a real clinic.</em></p>
+  <h2>Appointments</h2>
+  <p>Appointments booked through this website are subject to availability and confirmation by clinic staff. We recommend arriving a few minutes before your scheduled time.</p>
+  <h2>Cancellations &amp; Rescheduling</h2>
+  <p>You may cancel or reschedule your appointment using your appointment reference code and phone number on the "My Appointment" page. Repeated no-shows may affect future booking privileges.</p>
+  <h2>Medical Disclaimer</h2>
+  <p>Content on this website, including treatment descriptions, is for general informational purposes and does not replace professional dental advice, diagnosis, or treatment.</p>
+  <h2>Website Use</h2>
+  <p>You agree to provide accurate information when booking appointments or contacting the clinic through this site.</p>
+</div></section>
+{% endblock %}

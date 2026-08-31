@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}{{ clinic.clinic_name }} | Gentle Family &amp; Cosmetic Dentistry{% endblock %}
+{% block meta_description %}{{ clinic.seo_meta_description }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">✦ {{ clinic.tagline }}</span>
+      <h1>Your Smile Deserves Gentle, Expert Care.</h1>
+      <p style="font-size:1.08rem; max-width:520px;">
+        At {{ clinic.clinic_name }}, {{ clinic.doctor_name }} and our team combine modern dentistry with a
+        calm, patient-first approach — so every visit feels comfortable, from routine cleanings to more
+        involved treatments.
+      </p>
+      <div class="hero-cta">
+        <a href="{{ url_for('booking.book_appointment') }}" class="btn btn-primary">Book an Appointment</a>
+        <a href="{{ whatsapp_link(clinic.whatsapp, 'Hello Dr. ' + clinic.doctor_name.replace('Dr. ','') + ', I would like to book a dental appointment.') }}"
+           class="btn btn-whatsapp" target="_blank" rel="noopener">WhatsApp Doctor</a>
+      </div>
+    </div>
+    <div class="hero-photo-wrap">
+      <div class="hero-photo">
+        <svg width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 5c-2 0-3.5 1.5-5 1.5S4 5 3 5c-1 3 0 12 3 15 1.5 1.5 2-4 3-4s1.5 5.5 3 4c3-3 4-12 3-15-1 0-2.5 1.5-3 1.5S14 5 12 5z"/></svg>
+      </div>
+      <div class="hero-badge">
+        <div class="avatar-circle">{{ clinic.doctor_name[0] }}</div>
+        <div>
+          <strong style="display:block; font-size:0.92rem;">{{ clinic.doctor_name }}</strong>
+          <span class="small-muted">{{ clinic.doctor_designation }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="tag-pill">Treatments</span>
+      <h2 style="margin-top:0.6rem;">Comprehensive Dental Care, All in One Place</h2>
+      <p>From routine checkups to advanced procedures, our treatments are designed around your comfort.</p>
+    </div>
+    <div class="grid grid-4">
+      {% for t in treatments %}
+      <div class="card treatment-card">
+        <div class="treatment-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5c-2 0-3.5 1.5-5 1.5S4 5 3 5c-1 3 0 12 3 15 1.5 1.5 2-4 3-4s1.5 5.5 3 4c3-3 4-12 3-15-1 0-2.5 1.5-3 1.5S14 5 12 5z"/></svg>
+        </div>
+        <h3>{{ t.name }}</h3>
+        <p>{{ t.short_description }}</p>
+        <div class="treatment-actions">
+          <a href="{{ url_for('main.treatment_detail', slug=t.slug) }}" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="{{ url_for('booking.book_appointment', treatment=t.slug) }}" class="btn btn-primary btn-sm">Book</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-2">
+      <a href="{{ url_for('main.treatments') }}" class="btn btn-outline">View All Treatments</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-sky">
+  <div class="container">
+    <div class="doctor-card">
+      <div class="doctor-photo" aria-hidden="true">
+        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div>
+        <span class="tag-pill">Meet Your Dentist</span>
+        <h2 style="margin-top:0.6rem;">{{ clinic.doctor_name }}</h2>
+        <p style="color:var(--c-blue-600); font-weight:600; margin-bottom:0.8rem;">{{ clinic.doctor_designation }}</p>
+        <p>{{ clinic.doctor_bio }}</p>
+        <div class="doctor-meta-list">
+          <div><span class="label">Qualifications</span>{{ clinic.doctor_qualifications }}</div>
+          <div><span class="label">Experience</span>{{ clinic.doctor_experience_years }}+ years</div>
+          <div><span class="label">Specializations</span>{{ clinic.doctor_specializations }}</div>
+          <div><span class="label">Languages</span>{{ clinic.doctor_languages }}</div>
+        </div>
+        <a href="{{ url_for('main.about') }}" class="btn btn-outline btn-sm">Read Full Profile</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="tag-pill">Why Choose Us</span>
+      <h2 style="margin-top:0.6rem;">Care Designed Around You</h2>
+    </div>
+    <div class="grid grid-4">
+      {% set features = [
+        ("Experienced Dentist", "Years of hands-on clinical expertise across general and specialized dentistry."),
+        ("Modern Equipment", "Up-to-date tools and techniques for safer, more precise treatment."),
+        ("Sterilized Environment", "Rigorous sterilization protocols for your safety at every visit."),
+        ("Patient-Centered Care", "Every treatment plan is explained clearly and tailored to you."),
+        ("Easy Appointment Booking", "Book, reschedule, or cancel online in just a few clicks."),
+        ("Comfortable Environment", "A calm, welcoming space designed to ease dental anxiety."),
+        ("Transparent Information", "No surprises — we explain your options and next steps."),
+        ("Emergency Care", "Support when you need it most, for urgent dental issues.")
+      ] %}
+      {% for title, desc in features %}
+      <div class="feature-item">
+        <div class="feature-icon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div><h4>{{ title }}</h4><p>{{ desc }}</p></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if reviews %}
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <span class="tag-pill">Testimonials</span>
+      <h2 style="margin-top:0.6rem;">What Our Patients Say</h2>
+    </div>
+    <div class="grid grid-3">
+      {% for r in reviews %}
+      <div class="card testimonial-card">
+        <div class="stars" aria-label="{{ r.rating }} out of 5 stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</div>
+        <p>&ldquo;{{ r.review_text }}&rdquo;</p>
+        <div class="testimonial-author">
+          <div class="avatar-circle">{{ r.patient_name[0] }}</div>
+          <strong>{{ r.patient_name }}</strong>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="container text-center">
+    <h2>Ready to Take the Next Step?</h2>
+    <p style="max-width:520px; margin:0 auto 1.5rem;">Booking a visit takes less than two minutes — pick a treatment, choose a time that works, and we'll take care of the rest.</p>
+    <div class="hero-cta" style="justify-content:center;">
+      <a href="{{ url_for('booking.book_appointment') }}" class="btn btn-primary">Book an Appointment</a>
+      <a href="{{ url_for('main.contact') }}" class="btn btn-outline">Contact Us</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

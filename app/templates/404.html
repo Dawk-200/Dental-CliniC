@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found | {{ clinic.clinic_name }}{% endblock %}
+{% block content %}
+<section class="section text-center">
+  <div class="container">
+    <h1>404</h1>
+    <p>We couldn't find the page you were looking for.</p>
+    <a href="{{ url_for('main.home') }}" class="btn btn-primary">Back to Home</a>
+  </div>
+</section>
+{% endblock %}

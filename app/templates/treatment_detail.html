@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{{ t.seo_title or (t.name + ' | ' + clinic.clinic_name) }}{% endblock %}
+{% block meta_description %}{{ t.seo_description or t.short_description }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MedicalProcedure",
+  "name": "{{ t.name }}",
+  "description": "{{ (t.short_description or '')|replace('"','\\"') }}"
+}
+</script>
+{% if faqs %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for f in faqs %}
+    {
+      "@type": "Question",
+      "name": "{{ f.q|replace('"','\\"') }}",
+      "acceptedAnswer": { "@type": "Answer", "text": "{{ f.a|replace('"','\\"') }}" }
+    }{{ "," if not loop.last }}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs">
+      <a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>
+      <a href="{{ url_for('main.treatments') }}">Treatments</a><span class="sep">/</span>{{ t.name }}
+    </div>
+    <h1>{{ t.name }}</h1>
+    {% if t.short_description %}<p style="max-width:600px; margin:0 auto;">{{ t.short_description }}</p>{% endif %}
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="detail-grid" style="display:grid; grid-template-columns:2fr 1fr; gap:2.5rem;">
+      <div>
+        {% if t.intro %}<p>{{ t.intro }}</p>{% endif %}
+
+        {% if t.what_is_it %}<h2>What is {{ t.name }}?</h2><p>{{ t.what_is_it }}</p>{% endif %}
+        {% if t.when_needed %}<h2>When is it needed?</h2><p>{{ t.when_needed }}</p>{% endif %}
+        {% if t.symptoms %}<h2>Symptoms &amp; Indications</h2><p>{{ t.symptoms }}</p>{% endif %}
+        {% if t.procedure %}<h2>What happens during treatment?</h2><p>{{ t.procedure }}</p>{% endif %}
+        {% if t.recovery %}<h2>Recovery Information</h2><p>{{ t.recovery }}</p>{% endif %}
+
+        {% if faqs %}
+        <h2>Frequently Asked Questions</h2>
+        <div data-accordion-group>
+          {% for f in faqs %}
+          <div class="accordion-item">
+            <button class="accordion-trigger" aria-expanded="false">
+              <span>{{ f.q }}</span><span class="plus">+</span>
+            </button>
+            <div class="accordion-panel"><div class="accordion-panel-inner"><p>{{ f.a }}</p></div></div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <aside>
+        <div class="card" style="position:sticky; top:100px;">
+          <h3>Ready to book?</h3>
+          <p style="font-size:0.9rem;">Typical duration: {{ t.duration_minutes }} minutes</p>
+          {% if t.price_display %}<p style="font-size:0.9rem;">{{ t.price_display }}</p>{% endif %}
+          <a href="{{ url_for('booking.book_appointment', treatment=t.slug) }}" class="btn btn-primary btn-block mb-2" style="margin-bottom:0.7rem;">Book Appointment</a>
+          <a href="{{ whatsapp_link(clinic.whatsapp, 'Hello Dr. ' + clinic.doctor_name.replace('Dr. ','') + ', I have a question about ' + t.name + '.') }}"
+             class="btn btn-whatsapp btn-block" target="_blank" rel="noopener">Ask on WhatsApp</a>
+        </div>
+      </aside>
+    </div>
+
+    {% if related %}
+    <div class="mt-2">
+      <h2>Related Treatments</h2>
+      <div class="grid grid-3">
+        {% for r in related %}
+        <div class="card treatment-card">
+          <h3>{{ r.name }}</h3>
+          <p>{{ r.short_description }}</p>
+          <a href="{{ url_for('main.treatment_detail', slug=r.slug) }}" class="btn btn-outline btn-sm">Learn More</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

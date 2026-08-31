@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Appointment {{ appointment.public_code }}{% endblock %}
+{% block content %}
+
+<div class="breadcrumbs"><a href="{{ url_for('admin.appointments') }}">Appointments</a><span class="sep">/</span>{{ appointment.public_code }}</div>
+
+<div class="detail-grid">
+  <div>
+    <div class="admin-card">
+      <h3>Appointment Details</h3>
+      <span class="badge badge-{{ appointment.status }}">{{ status_labels[appointment.status] }}</span>
+      <dl class="summary-list mt-2">
+        <dt>Patient</dt><dd><a href="{{ url_for('admin.patient_detail', patient_id=appointment.patient.id) }}">{{ appointment.patient.full_name }}</a></dd>
+        <dt>Phone</dt><dd>{{ appointment.patient.phone }}</dd>
+        <dt>Treatment</dt><dd>{{ appointment.treatment.name }}</dd>
+        <dt>Date</dt><dd>{{ appointment.date.strftime('%A, %B %d, %Y') }}</dd>
+        <dt>Time</dt><dd>{{ format_time_12h(appointment.time) }}</dd>
+        <dt>Duration</dt><dd>{{ appointment.duration_minutes }} minutes</dd>
+        {% if appointment.problem_description %}<dt>Problem</dt><dd>{{ appointment.problem_description }}</dd>{% endif %}
+        {% if appointment.additional_notes %}<dt>Notes</dt><dd>{{ appointment.additional_notes }}</dd>{% endif %}
+        {% if appointment.cancellation_reason %}<dt>Cancellation Reason</dt><dd>{{ appointment.cancellation_reason }}</dd>{% endif %}
+      </dl>
+      <a href="{{ whatsapp_link(appointment.patient.whatsapp or appointment.patient.phone, 'Hello ' + appointment.patient.full_name + ', this is regarding your appointment ' + appointment.public_code + ' on ' + appointment.date.strftime('%Y-%m-%d') + ' at ' + appointment.time + '.') }}"
+         class="btn btn-whatsapp btn-sm mt-2" target="_blank" rel="noopener">Message Patient</a>
+    </div>
+
+    <div class="admin-card">
+      <h3>Update Status</h3>
+      <form method="POST" action="{{ url_for('admin.update_appointment_status', appointment_id=appointment.id) }}" style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <select name="status">
+          {% for key, label in status_labels.items() %}
+            <option value="{{ key }}" {{ 'selected' if appointment.status == key }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm">Update Status</button>
+      </form>
+    </div>
+
+    <div class="admin-card">
+      <h3>Reschedule</h3>
+      <form method="POST" action="{{ url_for('admin.admin_reschedule_appointment', appointment_id=appointment.id) }}" style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:end;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group" style="margin:0;"><label>Date</label><input type="date" name="date" value="{{ appointment.date }}"></div>
+        <div class="form-group" style="margin:0;"><label>Time</label><input type="time" name="time" value="{{ appointment.time }}"></div>
+        <button type="submit" class="btn btn-outline btn-sm">Reschedule</button>
+      </form>
+      <p class="small-muted mt-2">Note: the new slot is validated against working hours and existing bookings.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="admin-card">
+      <h3>History</h3>
+      {% for h in appointment.history %}
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div>
+          <strong style="font-size:0.88rem;">{{ h.action.replace('_',' ').title() }}</strong>
+          <p style="margin:0.1rem 0; font-size:0.85rem;">{{ h.details }}</p>
+          <span class="small-muted">{{ h.created_at.strftime('%b %d, %Y %H:%M') }} &middot; {{ h.performed_by }}</span>
+        </div>
+      </div>
+      {% else %}
+      <p class="small-muted">No history yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

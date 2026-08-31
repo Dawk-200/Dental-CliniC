@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Book an Appointment | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Book your dental appointment online at {{ clinic.clinic_name }} in a few simple steps.{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>Book Appointment</div>
+    <h1>Book an Appointment</h1>
+    <p style="max-width:520px; margin:0 auto;">Choose your treatment, pick a convenient time, and we'll confirm the details.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:820px;">
+    <div id="bookingWizard">
+
+      <div class="steps-bar">
+        <div class="step-pill active" data-step="1"><div class="num">1</div><span class="label">Treatment</span></div>
+        <div class="step-pill" data-step="2"><div class="num">2</div><span class="label">Date</span></div>
+        <div class="step-pill" data-step="3"><div class="num">3</div><span class="label">Time</span></div>
+        <div class="step-pill" data-step="4"><div class="num">4</div><span class="label">Your Info</span></div>
+        <div class="step-pill" data-step="5"><div class="num">5</div><span class="label">Confirm</span></div>
+      </div>
+
+      <form id="bookingForm" method="POST" action="{{ url_for('booking.confirm_booking') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="treatment_id" id="selectedTreatmentId">
+        <input type="hidden" name="date" id="summaryDate">
+        <input type="hidden" name="time" id="summaryTime">
+
+        <!-- Step 1: Treatment -->
+        <div class="wizard-step active" data-step="1">
+          <h3>Select a Treatment</h3>
+          <div class="treatment-select-grid">
+            {% for t in treatments %}
+            <div class="treatment-option {{ 'selected' if t.slug == preselect }}" data-treatment-id="{{ t.id }}" data-duration="{{ t.duration_minutes }}">
+              <strong>{{ t.name }}</strong>
+            </div>
+            {% endfor %}
+            <div class="treatment-option" data-treatment-id="other" data-duration="30">
+              <strong>Other / I have another problem</strong>
+            </div>
+          </div>
+          <div id="otherProblemWrap" style="display:none; margin-top:1.2rem;">
+            <div class="form-group">
+              <label for="otherProblemText">Please describe your problem</label>
+              <textarea id="otherProblemText" name="other_problem" rows="3" placeholder="Tell us briefly what's bothering you..."></textarea>
+            </div>
+          </div>
+          <div class="mt-2 text-center"><button type="button" class="btn btn-primary" data-next>Continue</button></div>
+        </div>
+
+        <!-- Step 2: Date -->
+        <div class="wizard-step" data-step="2">
+          <h3>Select a Date</h3>
+          <div class="calendar-wrap">
+            <div class="calendar-header">
+              <button type="button" class="btn btn-outline btn-sm" id="calPrev" aria-label="Previous month">&larr;</button>
+              <strong id="calendarLabel"></strong>
+              <button type="button" class="btn btn-outline btn-sm" id="calNext" aria-label="Next month">&rarr;</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+          <p class="small-muted mt-2">Selected date: <strong id="selectedDateLabel">None yet</strong></p>
+          <div class="mt-2" style="display:flex; gap:0.7rem;">
+            <button type="button" class="btn btn-outline" data-prev>Back</button>
+            <button type="button" class="btn btn-primary" data-next>Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Time slots -->
+        <div class="wizard-step" data-step="3">
+          <h3>Available Time Slots</h3>
+          <p class="small-muted">Showing available slots for <strong id="slotsDateLabel"></strong></p>
+          <p id="slotsLoading" class="small-muted">Loading available times&hellip;</p>
+          <p id="slotsEmpty" class="small-muted" style="display:none;">No slots available on this date. Please go back and choose another day.</p>
+          <div class="slots-grid" id="slotsGrid"></div>
+          <div class="mt-2" style="display:flex; gap:0.7rem;">
+            <button type="button" class="btn btn-outline" data-prev>Back</button>
+            <button type="button" class="btn btn-primary" data-next>Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Patient info -->
+        <div class="wizard-step" data-step="4">
+          <h3>Your Information</h3>
+          <div id="patientInfoForm">
+            <div class="grid grid-2">
+              <div class="form-group">
+                <label for="full_name">Full Name <span class="required-mark">*</span></label>
+                <input type="text" id="full_name" name="full_name" required>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number <span class="required-mark">*</span></label>
+                <input type="tel" id="phone" name="phone" required placeholder="+1 555 123 4567">
+              </div>
+              <div class="form-group">
+                <label for="whatsapp">WhatsApp Number</label>
+                <input type="tel" id="whatsapp" name="whatsapp" placeholder="Same as phone if left blank">
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email">
+              </div>
+              <div class="form-group">
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age" min="0" max="120">
+              </div>
+              <div class="form-group">
+                <label for="patient_type">Patient Type</label>
+                <select id="patient_type" name="patient_type">
+                  <option value="new">New Patient</option>
+                  <option value="existing">Existing Patient</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="problem_description">Problem Description</label>
+              <textarea id="problem_description" name="problem_description" rows="3" placeholder="Optional — anything specific we should know?"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="additional_notes">Additional Notes</label>
+              <textarea id="additional_notes" name="additional_notes" rows="2"></textarea>
+            </div>
+          </div>
+          <div class="mt-2" style="display:flex; gap:0.7rem;">
+            <button type="button" class="btn btn-outline" data-prev>Back</button>
+            <button type="button" class="btn btn-primary" data-next>Review &amp; Confirm</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Confirmation -->
+        <div class="wizard-step" data-step="5">
+          <h3>Review Your Appointment</h3>
+          <div class="card">
+            <dl class="summary-list">
+              <dt>Clinic</dt><dd>{{ clinic.clinic_name }}</dd>
+              <dt>Doctor</dt><dd>{{ clinic.doctor_name }}</dd>
+              <dt>Date</dt><dd id="finalDate">&mdash;</dd>
+              <dt>Time</dt><dd id="finalTime">&mdash;</dd>
+            </dl>
+          </div>
+          <p class="small-muted mt-2">By confirming, you agree to our <a href="{{ url_for('main.terms') }}">Terms &amp; Conditions</a>.</p>
+          <div class="mt-2" style="display:flex; gap:0.7rem;">
+            <button type="button" class="btn btn-outline" data-prev>Back</button>
+            <button type="submit" class="btn btn-primary">Confirm Appointment</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}

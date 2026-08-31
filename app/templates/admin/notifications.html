@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+
+<div class="mb-2">
+  <form method="POST" action="{{ url_for('admin.mark_all_read_form') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-outline btn-sm">Mark All as Read</button>
+  </form>
+</div>
+
+<div class="admin-table-wrap">
+  {% for n in notifications %}
+  <div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.2rem; border-bottom:1px solid var(--c-gray-100); background:{{ 'var(--c-sky-50)' if not n.is_read else '#fff' }};">
+    <div>
+      <strong style="font-size:0.92rem;">{{ n.title }}</strong>
+      <p style="margin:0.2rem 0 0; font-size:0.86rem; color:var(--c-ink-soft);">{{ n.message }}</p>
+      <span class="small-muted">{{ n.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+    </div>
+    <form method="POST" action="{{ url_for('admin.mark_notification_read_form', notif_id=n.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline btn-sm">{{ 'View' if n.link else 'Mark Read' }}</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="empty-state">No notifications yet.</div>
+  {% endfor %}
+</div>
+
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination">
+  {% if pagination.has_prev %}<a href="?page={{ pagination.prev_num }}">&larr;</a>{% endif %}
+  <span class="current">{{ pagination.page }} / {{ pagination.pages }}</span>
+  {% if pagination.has_next %}<a href="?page={{ pagination.next_num }}">&rarr;</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

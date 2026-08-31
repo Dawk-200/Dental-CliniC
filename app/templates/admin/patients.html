@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Patients{% endblock %}
+{% block content %}
+
+<div class="filter-bar">
+  <form method="GET" style="display:flex; gap:0.7rem; width:100%;">
+    <input type="text" name="q" placeholder="Search name, phone, or email" value="{{ search }}">
+    <button type="submit" class="btn btn-outline btn-sm">Search</button>
+  </form>
+</div>
+
+<div class="admin-table-wrap">
+  <div class="table-scroll">
+  <table class="admin-table">
+    <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Type</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+    <tbody>
+    {% for p in patients %}
+      <tr>
+        <td>{{ p.full_name }}</td>
+        <td>{{ p.phone }}</td>
+        <td>{{ p.email or '—' }}</td>
+        <td>{{ p.patient_type.title() }}</td>
+        <td>{% if p.is_active %}<span class="badge badge-completed">Active</span>{% else %}<span class="badge badge-cancelled">Inactive</span>{% endif %}</td>
+        <td>{{ p.created_at.strftime('%b %d, %Y') }}</td>
+        <td><a href="{{ url_for('admin.patient_detail', patient_id=p.id) }}" class="btn btn-outline btn-sm">View</a></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="7" class="empty-state">No patients found.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+{% if pagination and pagination.pages > 1 %}
+<div class="pagination">
+  {% if pagination.has_prev %}<a href="?page={{ pagination.prev_num }}&q={{ search }}">&larr;</a>{% endif %}
+  <span class="current">{{ pagination.page }} / {{ pagination.pages }}</span>
+  {% if pagination.has_next %}<a href="?page={{ pagination.next_num }}&q={{ search }}">&rarr;</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

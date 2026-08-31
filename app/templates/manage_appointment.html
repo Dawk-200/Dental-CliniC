@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Manage Your Appointment | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}Look up, cancel, or reschedule your dental appointment at {{ clinic.clinic_name }}.{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>My Appointment</div>
+    <h1>Manage Your Appointment</h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:560px;">
+    {% if not appointment %}
+    <div class="card">
+      <p>Enter your appointment reference code and the phone number you booked with to view, cancel, or reschedule.</p>
+      <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">        <div class="form-group">
+          <label for="code">Appointment Reference Code <span class="required-mark">*</span></label>
+          <input type="text" id="code" name="code" placeholder="APT-XXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number <span class="required-mark">*</span></label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Find My Appointment</button>
+      </form>
+    </div>
+    {% else %}
+    <div class="card">
+      <span class="badge badge-{{ appointment.status }}">{{ appointment.status.replace('_',' ').title() }}</span>
+      <dl class="summary-list mt-2">
+        <dt>Reference</dt><dd>{{ appointment.public_code }}</dd>
+        <dt>Treatment</dt><dd>{{ appointment.treatment.name }}</dd>
+        <dt>Date</dt><dd>{{ appointment.date.strftime('%A, %B %d, %Y') }}</dd>
+        <dt>Time</dt><dd>{{ format_time_12h(appointment.time) }}</dd>
+        <dt>Patient</dt><dd>{{ appointment.patient.full_name }}</dd>
+      </dl>
+
+      {% if appointment.status not in ['cancelled', 'completed'] %}
+      <div class="mt-2" style="display:flex; gap:0.7rem; flex-wrap:wrap;">
+        <a href="{{ url_for('booking.reschedule_appointment', public_code=appointment.public_code, phone=appointment.patient.phone) }}" class="btn btn-outline">Reschedule</a>
+        <form method="POST" action="{{ url_for('booking.cancel_appointment', public_code=appointment.public_code) }}" style="display:inline;"
+              onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="phone" value="{{ appointment.patient.phone }}">
+          <input type="hidden" name="reason" value="Cancelled by patient via website">
+          <button type="submit" class="btn btn-danger">Cancel Appointment</button>
+        </form>
+      </div>
+      {% else %}
+      <p class="small-muted mt-2">This appointment can no longer be modified.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block page_title %}{{ 'Edit Review' if review else 'Add Review' }}{% endblock %}
+{% block content %}
+<div class="admin-card" style="max-width:560px;">
+  <p class="small-muted">Only add genuine reviews shared with the clinic directly. Do not fabricate reviews.</p>
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group"><label>Patient Name *</label><input type="text" name="patient_name" value="{{ review.patient_name if review else '' }}" required></div>
+    <div class="form-group">
+      <label>Rating</label>
+      <select name="rating">
+        {% for i in range(5, 0, -1) %}
+          <option value="{{ i }}" {{ 'selected' if review and review.rating == i }}>{{ i }} Star{{ 's' if i != 1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group"><label>Review Text *</label><textarea name="review_text" rows="4" required>{{ review.review_text if review else '' }}</textarea></div>
+    <div class="checkbox-row form-group">
+      <input type="checkbox" name="is_published" id="is_published" {{ 'checked' if (review is none) or review.is_published }}>
+      <label for="is_published" style="margin:0;">Published (visible on website)</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Review</button>
+    <a href="{{ url_for('admin.reviews') }}" class="btn btn-outline">Cancel</a>
+  </form>
+</div>
+{% endblock %}

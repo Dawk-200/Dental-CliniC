@@ -1,0 +1,111 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="grid grid-4 mb-2">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--c-sky-100); color:var(--c-blue-600);">🧑‍🤝‍🧑</div>
+    <div class="stat-label">Total Patients</div>
+    <div class="stat-value">{{ total_patients }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--c-yellow-100); color:#93690b;">📅</div>
+    <div class="stat-label">Today's Appointments</div>
+    <div class="stat-value">{{ todays_appointments }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--c-sky-100); color:var(--c-blue-600);">⏳</div>
+    <div class="stat-label">Upcoming</div>
+    <div class="stat-value">{{ upcoming }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--c-yellow-100); color:#93690b;">🕓</div>
+    <div class="stat-label">Pending</div>
+    <div class="stat-value">{{ pending }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#e5f6ee; color:var(--c-success);">✅</div>
+    <div class="stat-label">Completed</div>
+    <div class="stat-value">{{ completed }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#f4e4e4; color:var(--c-error);">✖️</div>
+    <div class="stat-label">Cancelled</div>
+    <div class="stat-value">{{ cancelled }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--c-gray-100); color:var(--c-ink-soft);">🚫</div>
+    <div class="stat-label">No-shows</div>
+    <div class="stat-value">{{ no_show }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--c-sky-100); color:var(--c-blue-600);">🆕</div>
+    <div class="stat-label">New Patients (Month)</div>
+    <div class="stat-value">{{ new_patients_month }}</div>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div>
+    <div class="admin-card">
+      <h3>Upcoming Appointments</h3>
+      <div class="table-scroll">
+      <table class="admin-table">
+        <thead><tr><th>Patient</th><th>Treatment</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for a in upcoming_list %}
+          <tr onclick="window.location='{{ url_for('admin.appointment_detail', appointment_id=a.id) }}'" style="cursor:pointer;">
+            <td>{{ a.patient.full_name }}</td>
+            <td>{{ a.treatment.name }}</td>
+            <td>{{ a.date.strftime('%b %d') }}</td>
+            <td>{{ format_time_12h(a.time) }}</td>
+            <td><span class="badge badge-{{ a.status }}">{{ status_labels[a.status] }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="empty-state">No upcoming appointments.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+      <div class="mt-2"><a href="{{ url_for('admin.appointments') }}" class="btn btn-outline btn-sm">View All Appointments</a></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="admin-card">
+      <h3>Last 7 Days</h3>
+      <canvas id="volumeChart" height="180"></canvas>
+    </div>
+    <div class="admin-card">
+      <h3>Quick Actions</h3>
+      <a href="{{ url_for('admin.new_appointment') }}" class="btn btn-primary btn-block" style="margin-bottom:0.6rem;">+ New Appointment</a>
+      <a href="{{ url_for('admin.availability') }}" class="btn btn-outline btn-block" style="margin-bottom:0.6rem;">Manage Availability</a>
+      <a href="{{ url_for('admin.statistics') }}" class="btn btn-outline btn-block">View Statistics</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+  const ctx = document.getElementById('volumeChart');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: {{ chart_labels|tojson }},
+      datasets: [{
+        label: 'Appointments',
+        data: {{ chart_values|tojson }},
+        backgroundColor: '#5fa8cf',
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+</script>
+{% endblock %}

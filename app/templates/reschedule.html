@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Reschedule Appointment | {{ clinic.clinic_name }}{% endblock %}
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs"><a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>Reschedule</div>
+    <h1>Reschedule Your Appointment</h1>
+    <p>Reference: <strong>{{ appointment.public_code }}</strong> &middot; Currently {{ appointment.date.strftime('%b %d, %Y') }} at {{ format_time_12h(appointment.time) }}</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:600px;">
+    <form method="POST" id="rescheduleForm">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="phone" value="{{ phone }}">
+      <input type="hidden" name="date" id="rDate">
+      <input type="hidden" name="time" id="rTime">
+
+      <div class="calendar-wrap">
+        <div class="calendar-header">
+          <button type="button" class="btn btn-outline btn-sm" id="calPrev">&larr;</button>
+          <strong id="calendarLabel"></strong>
+          <button type="button" class="btn btn-outline btn-sm" id="calNext">&rarr;</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <h3 class="mt-2">Available Times</h3>
+      <p id="slotsEmpty" class="small-muted" style="display:none;">No slots available. Please pick another date.</p>
+      <div class="slots-grid" id="slotsGrid"></div>
+
+      <button type="submit" class="btn btn-primary btn-block mt-2" id="rescheduleSubmit" disabled>Confirm New Time</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var state = { date: null, time: null, openWeekdays: [], month: new Date().getMonth(), year: new Date().getFullYear() };
+  var calGrid = document.getElementById("calendarGrid");
+  var calLabel = document.getElementById("calendarLabel");
+  var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var treatmentId = {{ appointment.treatment_id }};
+
+  fetch("/api/clinic-open-days").then(r => r.json()).then(d => { state.openWeekdays = d.open_weekdays || []; renderCalendar(); });
+
+  document.getElementById("calPrev").addEventListener("click", function () {
+    state.month--; if (state.month < 0) { state.month = 11; state.year--; } renderCalendar();
+  });
+  document.getElementById("calNext").addEventListener("click", function () {
+    state.month++; if (state.month > 11) { state.month = 0; state.year++; } renderCalendar();
+  });
+
+  function renderCalendar() {
+    calGrid.innerHTML = "";
+    ["Su","Mo","Tu","We","Th","Fr","Sa"].forEach(d => { var el = document.createElement("div"); el.className = "dow"; el.textContent = d; calGrid.appendChild(el); });
+    var firstDay = new Date(state.year, state.month, 1);
+    var offset = firstDay.getDay();
+    var daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
+    var today = new Date(); today.setHours(0,0,0,0);
+    calLabel.textContent = monthNames[state.month] + " " + state.year;
+    for (var i = 0; i < offset; i++) { var e = document.createElement("div"); e.className = "calendar-day empty"; calGrid.appendChild(e); }
+    for (var day = 1; day <= daysInMonth; day++) {
+      var cellDate = new Date(state.year, state.month, day);
+      var jsWeekday = cellDate.getDay();
+      var pyWeekday = jsWeekday === 0 ? 6 : jsWeekday - 1;
+      var isPast = cellDate < today;
+      var isClosed = state.openWeekdays.length > 0 && state.openWeekdays.indexOf(pyWeekday) === -1;
+      var cell = document.createElement("div");
+      cell.className = "calendar-day"; cell.textContent = day;
+      var iso = cellDate.getFullYear() + "-" + String(cellDate.getMonth()+1).padStart(2,"0") + "-" + String(day).padStart(2,"0");
+      cell.dataset.iso = iso;
+      if (isPast || isClosed) { cell.classList.add("disabled"); }
+      else {
+        cell.addEventListener("click", function () {
+          calGrid.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+          this.classList.add("selected");
+          state.date = this.dataset.iso;
+          document.getElementById("rDate").value = state.date;
+          loadSlots();
+        });
+      }
+      calGrid.appendChild(cell);
+    }
+  }
+
+  function loadSlots() {
+    var slotsGrid = document.getElementById("slotsGrid");
+    var slotsEmpty = document.getElementById("slotsEmpty");
+    slotsGrid.innerHTML = ""; slotsEmpty.style.display = "none";
+    fetch("/api/available-slots?date=" + state.date + "&treatment_id=" + treatmentId)
+      .then(r => r.json()).then(function (data) {
+        var slots = data.slots || [];
+        if (slots.length === 0) { slotsEmpty.style.display = "block"; return; }
+        slots.forEach(function (s) {
+          var btn = document.createElement("button");
+          btn.type = "button"; btn.className = "slot-btn"; btn.textContent = s.label;
+          btn.addEventListener("click", function () {
+            slotsGrid.querySelectorAll(".selected").forEach(b => b.classList.remove("selected"));
+            btn.classList.add("selected");
+            state.time = s.value;
+            document.getElementById("rTime").value = s.value;
+            document.getElementById("rescheduleSubmit").disabled = false;
+          });
+          slotsGrid.appendChild(btn);
+        });
+      });
+  }
+});
+</script>
+{% endblock %}

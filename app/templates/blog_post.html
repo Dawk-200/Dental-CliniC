@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ post.seo_title or post.title }} | {{ clinic.clinic_name }}{% endblock %}
+{% block meta_description %}{{ post.seo_description or post.excerpt or '' }}{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="breadcrumbs">
+      <a href="{{ url_for('main.home') }}">Home</a><span class="sep">/</span>
+      <a href="{{ url_for('main.blog_list') }}">Blog</a><span class="sep">/</span>{{ post.title }}
+    </div>
+    <h1>{{ post.title }}</h1>
+    <p class="small-muted">By {{ post.author }} &middot; {{ post.published_at.strftime('%B %d, %Y') if post.published_at }}</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container" style="max-width:760px;">
+    <div style="white-space:pre-wrap; color:var(--c-ink-soft); line-height:1.8;">{{ post.content }}</div>
+    {% if post.tags %}
+    <div class="mt-2">
+      {% for tag in post.tags.split(',') %}<span class="tag-pill" style="margin-right:0.4rem;">{{ tag.strip() }}</span>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="mt-2">
+      <a href="{{ url_for('main.blog_list') }}" class="btn btn-outline">&larr; Back to Blog</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

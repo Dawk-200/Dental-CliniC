@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% block page_title %}SEO Settings{% endblock %}
+{% block content %}
+<div class="admin-card" style="max-width:700px;">
+  <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+      <label>Site Title (used as default page title)</label>
+      <input type="text" name="seo_site_title" value="{{ settings.seo_site_title }}">
+    </div>
+    <div class="form-group">
+      <label>Meta Description (used as default page description)</label>
+      <textarea name="seo_meta_description" rows="3">{{ settings.seo_meta_description }}</textarea>
+    </div>
+    <p class="small-muted">Individual treatment pages and blog posts can override these defaults from their own edit screens.</p>
+    <button type="submit" class="btn btn-primary">Save SEO Settings</button>
+  </form>
+</div>
+
+<div class="admin-card">
+  <h3>SEO Resources</h3>
+  <ul style="list-style:disc; padding-left:1.2rem; color:var(--c-ink-soft);">
+    <li>XML Sitemap: <a href="{{ url_for('seo.sitemap') }}" target="_blank">/sitemap.xml</a></li>
+    <li>Robots.txt: <a href="{{ url_for('seo.robots') }}" target="_blank">/robots.txt</a></li>
+  </ul>
+</div>
+{% endblock %}

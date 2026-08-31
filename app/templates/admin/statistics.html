@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+{% block page_title %}Statistics{% endblock %}
+{% block content %}
+
+<div class="filter-bar">
+  <form method="GET" style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center;">
+    <select name="range" onchange="this.form.submit()">
+      <option value="today" {{ 'selected' if preset == 'today' }}>Today</option>
+      <option value="yesterday" {{ 'selected' if preset == 'yesterday' }}>Yesterday</option>
+      <option value="week" {{ 'selected' if preset == 'week' }}>This Week</option>
+      <option value="month" {{ 'selected' if preset == 'month' }}>This Month</option>
+      <option value="year" {{ 'selected' if preset == 'year' }}>This Year</option>
+      <option value="custom" {{ 'selected' if preset == 'custom' }}>Custom Range</option>
+    </select>
+    {% if preset == 'custom' %}
+    <input type="date" name="start" value="{{ start_date }}">
+    <input type="date" name="end" value="{{ end_date }}">
+    <button type="submit" class="btn btn-outline btn-sm">Apply</button>
+    {% endif %}
+  </form>
+</div>
+
+<p class="small-muted mb-2">Showing statistics from {{ start_date.strftime('%b %d, %Y') }} to {{ end_date.strftime('%b %d, %Y') }}</p>
+
+<div class="grid grid-4 mb-2">
+  <div class="stat-card"><div class="stat-label">Total Appointments</div><div class="stat-value">{{ total_appts }}</div></div>
+  <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-value">{{ completed }}</div></div>
+  <div class="stat-card"><div class="stat-label">Cancelled</div><div class="stat-value">{{ cancelled }}</div></div>
+  <div class="stat-card"><div class="stat-label">No-shows</div><div class="stat-value">{{ no_show }}</div></div>
+  <div class="stat-card"><div class="stat-label">New Patients</div><div class="stat-value">{{ new_patients }}</div></div>
+  <div class="stat-card"><div class="stat-label">Returning Patients</div><div class="stat-value">{{ returning_patients }}</div></div>
+</div>
+
+<div class="admin-card">
+  <h3>Appointments by Treatment</h3>
+  <div class="table-scroll">
+  <table class="admin-table">
+    <thead><tr><th>Treatment</th><th>Appointments</th></tr></thead>
+    <tbody>
+    {% for name, count in treatment_breakdown %}
+      <tr><td>{{ name }}</td><td>{{ count }}</td></tr>
+    {% else %}
+      <tr><td colspan="2" class="empty-state">No data for this period.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}
